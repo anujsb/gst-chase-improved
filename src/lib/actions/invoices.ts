@@ -42,7 +42,7 @@ export async function processInvoiceFiles(
         isRcm:          extracted.isRcm,
         ocrConfidence:  String(extracted.confidence),
         extractedByAi:  true,
-        rawOcrData:     extracted as Record<string,unknown>,
+        rawOcrData:     extracted as unknown as Record<string, unknown>,
         sourceFile:     file.name,
         itcEligible:    isValidGSTIN(extracted.supplierGstin),
       }).returning();

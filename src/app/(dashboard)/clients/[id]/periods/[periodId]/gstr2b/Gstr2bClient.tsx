@@ -186,7 +186,7 @@ export default function Gstr2bClient({ filingPeriodId, clientId, periodLabel, ex
                   {Object.entries(bySupplier).map(([gstin, s]) => (
                     <tr key={gstin} className="hover:bg-zinc-50/50">
                       <td className="px-4 py-2.5 font-mono text-zinc-600">{gstin}</td>
-                      <td className="px-4 py-2.5 text-zinc-700 max-w-[180px] truncate">{s.name ?? "—"}</td>
+                      <td className="px-4 py-2.5 text-zinc-700 max-w-45 truncate">{s.name ?? "—"}</td>
                       <td className="px-4 py-2.5 text-right text-zinc-700 tabular-nums">{s.count}</td>
                       <td className="px-4 py-2.5 text-right tabular-nums text-zinc-700">₹{s.taxable.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</td>
                       <td className="px-4 py-2.5 text-right tabular-nums text-zinc-700">₹{s.tax.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</td>

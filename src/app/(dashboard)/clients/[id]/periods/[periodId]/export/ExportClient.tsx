@@ -27,7 +27,7 @@ export default function ExportClient({ filingPeriodId, clientId, periodLabel, gs
     );
   }
 
-  const { period, table4, invoiceSummary } = gstr3bData;
+  const { period, table4, invoiceSummary, table3_1 } = gstr3bData;
   const netIgst  = table4.itcIgst  - table4.reversedIgst  - table4.ineligibleIgst;
   const netCgst  = table4.itcCgst  - table4.reversedCgst  - table4.ineligibleCgst;
   const netSgst  = table4.itcSgst  - table4.reversedSgst  - table4.ineligibleSgst;
@@ -47,7 +47,10 @@ export default function ExportClient({ filingPeriodId, clientId, periodLabel, gs
         osup_det:      { txval:0, iamt:0, camt:0, samt:0, csamt:0 },
         osup_zero:     { txval:0, iamt:0, csamt:0 },
         osup_nil_exmp: { txval:0 },
-        isup_rev:      { txval: gstr3bData.table3_1.inwardRcm, iamt:0, camt:0, samt:0, csamt:0 },
+        // isup_rev:      { txval: gstr3bData.table3_1.inwardRcm, iamt:0, camt:0, samt:0, csamt:0 },
+        isup_rev:      { txval: table3_1.inwardRcm, iamt:0, camt:0, samt:0, csamt:0 },
+
+        
         osup_nongst:   { txval:0 },
       },
       itc_elg: {

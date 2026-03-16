@@ -35,7 +35,7 @@ export function parseGstr2bJson(raw: unknown): Gstr2bEntry[] {
           supplierGstin:gstin, supplierName:name||null, supplierTradeName:name||null,
           invoiceNumber:String(i.inum ?? i.invNo ?? ""),
           invoiceDate:nd(String(i.idt ?? i.invDt ?? "")),
-          invoiceType:"b2b", taxable, igst, cgst, sgst, cess,
+          invoiceType:"b2b", igst, cgst, sgst, cess,
           taxableAmount:taxable, totalAmount:taxable+igst+cgst+sgst+cess,
           itcAvailable:String(i.itcavl ?? i.itcAval ?? "Y"),
           itcReason:String(i.rsn ?? "") || null,
@@ -62,7 +62,7 @@ export function parseGstr2bJson(raw: unknown): Gstr2bEntry[] {
           supplierGstin:gstin, supplierName:null, supplierTradeName:null,
           invoiceNumber:String(nt.nt_num ?? nt.ntNum ?? ""),
           invoiceDate:nd(String(nt.nt_dt ?? nt.ntDt ?? "")),
-          invoiceType:"cdnr", taxable, igst, cgst, sgst, cess,
+          invoiceType:"cdnr", igst, cgst, sgst, cess,
           taxableAmount:taxable, totalAmount:taxable+igst+cgst+sgst+cess,
           itcAvailable:String(nt.itcavl ?? "Y"), itcReason:null, isRcm:false, sourceSection:"cdnr",
         });
@@ -77,7 +77,7 @@ export function parseGstr2bJson(raw: unknown): Gstr2bEntry[] {
         supplierGstin:"IMPORT", supplierName:String(i.portCode ?? "Import"), supplierTradeName:null,
         invoiceNumber:String(i.beNum ?? i.refDt ?? ""),
         invoiceDate:nd(String(i.refDt ?? "")),
-        invoiceType:"impg", taxable, igst, cgst:0, sgst:0, cess,
+        invoiceType:"impg", igst, cgst:0, sgst:0, cess,
         taxableAmount:taxable, totalAmount:taxable+igst+cess,
         itcAvailable:"Y", itcReason:null, isRcm:false, sourceSection:"impg",
       });

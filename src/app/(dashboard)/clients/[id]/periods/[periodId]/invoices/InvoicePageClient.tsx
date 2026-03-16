@@ -156,14 +156,14 @@ export default function InvoicePageClient({ filingPeriodId, clientId, periodLabe
                 <span className="text-xs text-zinc-700 flex-1 truncate">{q.file.name}</span>
                 <span className="text-xs text-zinc-400">{(q.file.size / 1024).toFixed(0)} KB</span>
                 {q.status === "done" && q.result?.invoice && (
-                  <span className="text-xs text-emerald-600 truncate max-w-[180px]">
+                  <span className="text-xs text-emerald-600 truncate max-w-45">
                     {q.result.invoice.supplierName ?? q.result.invoice.invoiceNumber ?? "Extracted"}
                     {" · "}₹{q.result.invoice.totalAmount?.toLocaleString("en-IN")}
                     {" · "}{q.result.invoice.confidence}% conf
                   </span>
                 )}
                 {q.status === "error" && (
-                  <span className="text-xs text-red-500 truncate max-w-[200px]">{q.result?.error ?? "Failed"}</span>
+                  <span className="text-xs text-red-500 truncate max-w-48">{q.result?.error ?? "Failed"}</span>
                 )}
               </div>
             ))}
@@ -204,7 +204,7 @@ export default function InvoicePageClient({ filingPeriodId, clientId, periodLabe
                         {inv.invoiceNumber === "UNKNOWN" ? <span className="text-red-400 italic">not found</span> : inv.invoiceNumber}
                       </td>
                       <td className="px-4 py-3 text-zinc-600 whitespace-nowrap">{inv.invoiceDate || "—"}</td>
-                      <td className="px-4 py-3 text-zinc-700 max-w-[130px] truncate">
+                      <td className="px-4 py-3 text-zinc-700 max-w-40 truncate">
                         {inv.supplierName || "—"}
                         {inv.isRcm && <span className="ml-1 text-[10px] bg-orange-100 text-orange-600 px-1 py-0.5 rounded">RCM</span>}
                       </td>
