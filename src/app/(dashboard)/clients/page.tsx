@@ -1,5 +1,4 @@
 // src/app/(dashboard)/clients/page.tsx
-
 import Link from "next/link";
 import { getAllClients } from "@/lib/actions/clients";
 
@@ -28,43 +27,31 @@ export default async function ClientsPage() {
       {clients.length === 0 ? (
         <div className="bg-white border border-dashed border-zinc-300 rounded-xl p-16 text-center">
           <p className="text-sm font-medium text-zinc-700 mb-1">No clients yet</p>
-          <p className="text-xs text-zinc-400 mb-4">Add your first client to start managing their GST filings.</p>
+          <p className="text-xs text-zinc-400 mb-4">Add your first client to start managing GST filings.</p>
           <Link href="/clients/new" className="inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-900 text-white text-sm rounded-lg hover:bg-zinc-800 transition-colors">
             Add your first client
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3">
-          {clients.map((client) => {
-            const latest = client.filingPeriods[0];
+        <div className="grid grid-cols-1 gap-2">
+          {clients.map((c) => {
+            const fp = c.filingPeriods[0];
             return (
-              <Link
-                key={client.id}
-                href={`/clients/${client.id}`}
-                className="group flex items-center gap-5 bg-white border border-zinc-200 rounded-xl px-6 py-4 hover:border-zinc-300 hover:shadow-sm transition-all"
-              >
+              <Link key={c.id} href={`/clients/${c.id}`}
+                className="group flex items-center gap-5 bg-white border border-zinc-200 rounded-xl px-6 py-4 hover:border-zinc-300 hover:shadow-sm transition-all">
                 <div className="w-9 h-9 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0">
-                  <span className="text-sm font-semibold text-zinc-600">{client.name.charAt(0).toUpperCase()}</span>
+                  <span className="text-sm font-semibold text-zinc-600">{c.name.charAt(0).toUpperCase()}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-zinc-900 truncate">{client.name}</p>
-                  {client.tradeName && <p className="text-xs text-zinc-400 truncate">{client.tradeName}</p>}
+                  <p className="font-medium text-zinc-900 truncate">{c.name}</p>
+                  {c.tradeName && <p className="text-xs text-zinc-400 truncate">{c.tradeName}</p>}
                 </div>
-                <span className="hidden md:block font-mono text-xs text-zinc-500 bg-zinc-50 border border-zinc-200 px-2 py-1 rounded-md">{client.gstin}</span>
-                <span className="text-sm text-zinc-500 min-w-[72px]">
-                  {latest ? `${MONTHS[latest.month - 1]} ${latest.year}` : <span className="text-zinc-300">—</span>}
+                <span className="hidden md:block font-mono text-xs bg-zinc-50 border border-zinc-200 px-2.5 py-1 rounded-md text-zinc-600">{c.gstin}</span>
+                <span className="text-sm text-zinc-500 min-w-[70px] text-right">{fp ? `${MONTHS[fp.month-1]} ${fp.year}` : "—"}</span>
+                <span className={`text-xs min-w-[90px] text-right ${fp?.status==="filed"?"text-emerald-600":fp?.status==="in_progress"?"text-amber-600":fp?.status==="reconciled"?"text-blue-600":"text-zinc-400"}`}>
+                  {fp?.status?.replace("_"," ") ?? "No filings"}
                 </span>
-                <span className={`text-xs min-w-[90px] ${
-                  latest?.status === "filed" ? "text-emerald-600" :
-                  latest?.status === "in_progress" ? "text-amber-600" :
-                  latest?.status === "reconciled" ? "text-blue-600" :
-                  latest?.status === "pending" ? "text-zinc-500" : "text-zinc-300"
-                }`}>
-                  {latest?.status?.replace("_", " ") ?? "No filings"}
-                </span>
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-zinc-300 group-hover:text-zinc-500 transition-colors shrink-0">
-                  <path d="M9 18l6-6-6-6"/>
-                </svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-zinc-300 group-hover:text-zinc-500 transition-colors shrink-0"><path d="M9 18l6-6-6-6"/></svg>
               </Link>
             );
           })}

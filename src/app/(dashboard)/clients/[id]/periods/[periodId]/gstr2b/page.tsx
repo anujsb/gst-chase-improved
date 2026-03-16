@@ -1,22 +1,22 @@
-// src/app/(dashboard)/clients/[id]/periods/[periodId]/invoices/page.tsx
+// src/app/(dashboard)/clients/[id]/periods/[periodId]/gstr2b/page.tsx
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db, filingPeriods } from "@/db";
 import { eq } from "drizzle-orm";
-import { getInvoicesForPeriod } from "@/lib/actions/invoices";
-import InvoicePageClient from "./InvoicePageClient";
+import { getGstr2bInvoices } from "@/lib/actions/gstr2b";
+import Gstr2bClient from "./Gstr2bClient";
 
 export const dynamic = "force-dynamic";
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-export default async function InvoicesPage({ params }: { params: { id: string; periodId: string } }) {
+export default async function Gstr2bPage({ params }: { params: { id: string; periodId: string } }) {
   const period = await db.query.filingPeriods.findFirst({
     where: eq(filingPeriods.id, params.periodId),
     with: { client: true },
   });
   if (!period || period.clientId !== params.id) notFound();
 
-  const invoices = await getInvoicesForPeriod(params.periodId);
+  const existing = await getGstr2bInvoices(params.periodId);
 
   return (
     <div>
@@ -27,13 +27,15 @@ export default async function InvoicesPage({ params }: { params: { id: string; p
         <span>/</span>
         <Link href={`/clients/${params.id}/periods/${params.periodId}`} className="hover:text-zinc-700 transition-colors">{MONTHS[period.month-1]} {period.year}</Link>
         <span>/</span>
-        <span className="text-zinc-700">Invoices</span>
+        <span className="text-zinc-700">GSTR-2B</span>
       </div>
-      <InvoicePageClient
+      <Gstr2bClient
         filingPeriodId={params.periodId}
         clientId={params.id}
         periodLabel={`${MONTHS[period.month-1]} ${period.year} · ${period.client.name}`}
-        initialInvoices={invoices}
+        existingCount={existing.length}
+        existingFileName={period.gstr2bFileName}
+        existingInvoices={existing}
       />
     </div>
   );
