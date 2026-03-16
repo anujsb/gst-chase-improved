@@ -10,8 +10,9 @@ export const dynamic = "force-dynamic";
 const MONTHS  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const FMONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-export default async function ClientPage({ params }: { params: { id: string } }) {
-  const client = await getClientById(params.id);
+export default async function ClientPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const client  = await getClientById(id);
   if (!client) notFound();
 
   return (
@@ -79,7 +80,7 @@ export default async function ClientPage({ params }: { params: { id: string } })
       ) : (
         <div className="space-y-2">
           {client.filingPeriods.map((fp) => (
-            <Link key={fp.id} href={`/clients/${params.id}/periods/${fp.id}`}
+            <Link key={fp.id} href={`/clients/${id}/periods/${fp.id}`}
               className="group flex items-center gap-5 bg-white border border-zinc-200 rounded-xl px-6 py-4 hover:border-zinc-300 hover:shadow-sm transition-all">
               <div className="w-20 shrink-0">
                 <p className="text-sm font-semibold text-zinc-900">{MONTHS[fp.month - 1]} {fp.year}</p>

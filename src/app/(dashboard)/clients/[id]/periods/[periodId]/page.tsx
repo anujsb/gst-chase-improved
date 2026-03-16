@@ -6,20 +6,22 @@ import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const FMONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-export default async function PeriodPage({ params }: { params: { id: string; periodId: string } }) {
+export default async function PeriodPage({ params }: { params: Promise<{ id: string; periodId: string }> }) {
+  const { id, periodId } = await params;
+
   const period = await db.query.filingPeriods.findFirst({
-    where: eq(filingPeriods.id, params.periodId),
+    where: eq(filingPeriods.id, periodId),
     with: { client: true },
   });
-  if (!period || period.clientId !== params.id) notFound();
+  if (!period || period.clientId !== id) notFound();
 
-  const base = `/clients/${params.id}/periods/${params.periodId}`;
+  const base = `/clients/${id}/periods/${periodId}`;
 
-  const hasInvoices = (period.totalInvoicesInBooks ?? 0) > 0;
-  const has2B       = (period.totalInvoicesIn2B ?? 0) > 0;
+  const hasInvoices  = (period.totalInvoicesInBooks ?? 0) > 0;
+  const has2B        = (period.totalInvoicesIn2B    ?? 0) > 0;
   const isReconciled = period.status === "reconciled" || period.status === "filed";
 
   const steps = [
@@ -62,20 +64,20 @@ export default async function PeriodPage({ params }: { params: { id: string; per
       <div className="flex items-center gap-2 text-sm text-zinc-400 mb-6">
         <Link href="/clients" className="hover:text-zinc-700 transition-colors">Clients</Link>
         <span>/</span>
-        <Link href={`/clients/${params.id}`} className="hover:text-zinc-700 transition-colors">{period.client.name}</Link>
+        <Link href={`/clients/${id}`} className="hover:text-zinc-700 transition-colors">{period.client.name}</Link>
         <span>/</span>
-        <span className="text-zinc-700">{FMONTHS[period.month-1]} {period.year}</span>
+        <span className="text-zinc-700">{FMONTHS[period.month - 1]} {period.year}</span>
       </div>
 
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-zinc-900">{MONTHS[period.month-1]} {period.year}</h1>
+          <h1 className="text-2xl font-semibold text-zinc-900">{MONTHS[period.month - 1]} {period.year}</h1>
           <span className={`text-xs px-2 py-1 rounded-md border ${
-            period.status==="filed"?"bg-emerald-50 text-emerald-700 border-emerald-200":
-            period.status==="reconciled"?"bg-blue-50 text-blue-700 border-blue-200":
-            period.status==="in_progress"?"bg-amber-50 text-amber-700 border-amber-200":
+            period.status === "filed"       ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+            period.status === "reconciled"  ? "bg-blue-50 text-blue-700 border-blue-200"          :
+            period.status === "in_progress" ? "bg-amber-50 text-amber-700 border-amber-200"       :
             "bg-zinc-50 text-zinc-600 border-zinc-200"
-          }`}>{period.status.replace("_"," ")}</span>
+          }`}>{period.status.replace("_", " ")}</span>
         </div>
         <p className="text-sm text-zinc-500 mt-1">{period.client.name} · {period.client.gstin}</p>
       </div>
@@ -85,8 +87,8 @@ export default async function PeriodPage({ params }: { params: { id: string; per
           const inner = (
             <>
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-semibold border ${
-                step.done ? "bg-emerald-50 border-emerald-200 text-emerald-600" :
-                step.disabled ? "bg-zinc-50 border-zinc-200 text-zinc-300" :
+                step.done    ? "bg-emerald-50 border-emerald-200 text-emerald-600" :
+                step.disabled ? "bg-zinc-50 border-zinc-200 text-zinc-300"         :
                 "bg-zinc-50 border-zinc-200 text-zinc-500"
               }`}>
                 {step.done
@@ -95,15 +97,18 @@ export default async function PeriodPage({ params }: { params: { id: string; per
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <p className={`text-sm font-medium ${step.disabled?"text-zinc-400":"text-zinc-900"}`}>{step.label}</p>
+                  <p className={`text-sm font-medium ${step.disabled ? "text-zinc-400" : "text-zinc-900"}`}>{step.label}</p>
                   {step.badge && (
                     <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">{step.badge}</span>
                   )}
                 </div>
-                <p className={`text-xs mt-0.5 ${step.disabled?"text-zinc-300":"text-zinc-500"}`}>{step.desc}</p>
+                <p className={`text-xs mt-0.5 ${step.disabled ? "text-zinc-300" : "text-zinc-500"}`}>{step.desc}</p>
               </div>
               {!step.disabled && (
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-zinc-300 group-hover:text-zinc-500 transition-colors shrink-0"><path d="M9 18l6-6-6-6"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
+                  className="text-zinc-300 group-hover:text-zinc-500 transition-colors shrink-0">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
               )}
             </>
           );
@@ -116,21 +121,20 @@ export default async function PeriodPage({ params }: { params: { id: string; per
         })}
       </div>
 
-      {/* ITC Summary when reconciled */}
       {isReconciled && (
         <div className="mt-6 bg-white border border-zinc-200 rounded-xl p-6">
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">ITC Available for GSTR-3B</p>
           <div className="grid grid-cols-4 gap-4">
             {[
-              { label: "IGST", value: period.itcIgst },
-              { label: "CGST", value: period.itcCgst },
+              { label: "IGST",       value: period.itcIgst },
+              { label: "CGST",       value: period.itcCgst },
               { label: "SGST/UTGST", value: period.itcSgst },
-              { label: "Cess", value: period.itcCess },
+              { label: "Cess",       value: period.itcCess },
             ].map((item) => (
               <div key={item.label} className="text-center bg-zinc-50 rounded-lg p-3">
                 <p className="text-xs text-zinc-500 mb-0.5">{item.label}</p>
                 <p className="text-base font-semibold text-zinc-900 tabular-nums">
-                  ₹{Number(item.value??0).toLocaleString("en-IN",{minimumFractionDigits:2})}
+                  ₹{Number(item.value ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                 </p>
               </div>
             ))}

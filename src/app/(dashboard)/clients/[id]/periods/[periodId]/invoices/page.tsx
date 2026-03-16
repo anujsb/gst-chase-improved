@@ -9,29 +9,28 @@ import InvoicePageClient from "./InvoicePageClient";
 export const dynamic = "force-dynamic";
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-export default async function InvoicesPage({ params }: { params: { id: string; periodId: string } }) {
+export default async function InvoicesPage({ params }: { params: Promise<{ id: string; periodId: string }> }) {
+  const { id, periodId } = await params;
   const period = await db.query.filingPeriods.findFirst({
-    where: eq(filingPeriods.id, params.periodId),
+    where: eq(filingPeriods.id, periodId),
     with: { client: true },
   });
-  if (!period || period.clientId !== params.id) notFound();
-
-  const invoices = await getInvoicesForPeriod(params.periodId);
-
+  if (!period || period.clientId !== id) notFound();
+  const invoices = await getInvoicesForPeriod(periodId);
   return (
     <div>
       <div className="flex items-center gap-2 text-sm text-zinc-400 px-8 pt-8">
         <Link href="/clients" className="hover:text-zinc-700 transition-colors">Clients</Link>
         <span>/</span>
-        <Link href={`/clients/${params.id}`} className="hover:text-zinc-700 transition-colors">{period.client.name}</Link>
+        <Link href={`/clients/${id}`} className="hover:text-zinc-700 transition-colors">{period.client.name}</Link>
         <span>/</span>
-        <Link href={`/clients/${params.id}/periods/${params.periodId}`} className="hover:text-zinc-700 transition-colors">{MONTHS[period.month-1]} {period.year}</Link>
+        <Link href={`/clients/${id}/periods/${periodId}`} className="hover:text-zinc-700 transition-colors">{MONTHS[period.month-1]} {period.year}</Link>
         <span>/</span>
         <span className="text-zinc-700">Invoices</span>
       </div>
       <InvoicePageClient
-        filingPeriodId={params.periodId}
-        clientId={params.id}
+        filingPeriodId={periodId}
+        clientId={id}
         periodLabel={`${MONTHS[period.month-1]} ${period.year} · ${period.client.name}`}
         initialInvoices={invoices}
       />
